@@ -1,0 +1,262 @@
+<!-- https://iarobotxyz.blogspot.com/2020/11/modelado-neuronal-natural.html -->
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Neurona ROBOTXYZ</title>
+</head>
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+<div class="container">
+    <body>
+        <script src="http://cdn.babylonjs.com/hand.minified-1.2.js"></script>
+        <script src="http://cdn.babylonjs.com/cannon.js"></script>
+        <script src="http://cdn.babylonjs.com/oimo.js"></script>
+        <script src="http://cdn.babylonjs.com/babylon.js"></script>
+<canvas id="renderCanvas"></canvas>
+    <head>
+        <!-- Babylon.js -->
+        <script src="https://code.jquery.com/pep/0.4.2/pep.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+        <script src="https://preview.babylonjs.com/ammo.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/Oimo.js"></script>
+        <script src="https://preview.babylonjs.com/libktx.js"></script>
+        <script src="https://preview.babylonjs.com/earcut.min.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
+        <script src="https://preview.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+        <script src="https://preview.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+        <script src="https://preview.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
+        <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.js"></script>
+        <script src="https://preview.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
+        <script src="https://preview.babylonjs.com/gui/babylon.gui.min.js"></script>
+    </head>
+<body>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = null;
+        var scene = null;
+        var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
+        var createScene = function () {
+            var scene = new BABYLON.Scene(engine);
+            scene.clearColor = new BABYLON.Color3(0, 0, 0);//Color de Fondo de la Escena
+            var camera = new BABYLON.ArcRotateCamera("Camara", -Math.PI / 2, 1.5, 70, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+            var hemi = new BABYLON.HemisphericLight("toto");
+            var sphereMaterial = new BABYLON.StandardMaterial();
+            var sphere4 = BABYLON.Mesh.CreateSphere("Nucleo", 10.0, 5.5, scene);
+            var guaguauf = BABYLON.Mesh.CreateSphere("Nodo1", 10.0, 1.0, scene);
+            //Posicion esferas
+            //266,513 - 397,555 
+            //385,651 - 486,571 
+            //629,624 - 722,694 
+            //474,549 - 580,616 
+            //714,749 - 739,763 
+            sphere4.position.x = 10;
+            guaguauf.position.x = 30;
+            // Material
+            //sphere1.material = sphereMaterial;
+var materialSphere3 = new BABYLON.StandardMaterial("texture3", scene); 
+materialSphere3.diffuseTexture = new BABYLON.Texture("https://3.bp.blogspot.com/-4uF2EZVRnjg/X3sAW7nODtI/AAAAAAAAIc8/rCXr2g1adBQjF_-Wm38b438zFjeZ4rh1QCK4BGAYYCw/s1280/Robotxyz.png", scene);             
+            sphere4.material = materialSphere3;
+            guaguauf.material = materialSphere3;
+            //////////////////
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("ui1");
+            var panel = new BABYLON.GUI.StackPanel();  
+            panel.width = 0.25;
+            panel.rotation = 0.2;
+            panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            advancedTexture.addControl(panel);
+                
+            var createLabel = function(mesh) {
+                var label = new BABYLON.GUI.Rectangle("label for " + mesh.name);
+                label.background = "black";
+                label.height = "30px";
+                label.alpha = 0.5;
+                label.width = "100px";
+                label.cornerRadius = 20;
+                label.thickness = 1;
+                label.linkOffsetY = 30;
+                advancedTexture.addControl(label); 
+                label.linkWithMesh(mesh);
+        
+                var text1 = new BABYLON.GUI.TextBlock();
+                text1.text = mesh.name;
+                text1.color = "white";
+                label.addControl(text1);  
+            }  
+            createLabel(sphere4);
+            createLabel(guaguauf);
+            var endRound = new BABYLON.GUI.Ellipse();
+            endRound.width = "20px";
+            endRound.background = "black";
+            endRound.height = "20px";
+            endRound.color = "red";
+            advancedTexture.addControl(endRound);
+            endRound.linkWithMesh(sphere4);
+///////////LINEAS INICIO
+            var line = new BABYLON.GUI.Line();
+            line.alpha = 0.5; //Transparencia de la Linea
+            line.lineWidth = 5; //Ancho de la Linea
+            //line.dash = [10, 10]; //Ancho de cada separador de la linea
+            line.color = "red";
+            advancedTexture.addControl(line); 
+            line.linkWithMesh(guaguauf);
+            line.connectedControl = endRound;
+            // x1,y1 - x2,y2 
+            //266,513 - 397,555 
+            //385,651 - 486,571 
+            //629,624 - 722,694 
+            //474,549 - 580,616 
+            //714,749 - 739,763 
+            var line1 = new BABYLON.GUI.Line();
+            line1.lineWidth = 4;//Ancho de la Linea
+            line1.alpha = 0.5; //Transparencia de la Linea
+            line1.color = "Orange";
+            line1.x1 = 266/Math.PI;
+            line1.y1 = 513/Math.PI;
+            line1.x2 = 397/Math.PI;
+            line1.y2 = 555/Math.PI;
+            line1.linkOffsetX = 0;
+            line1.linkOffsetY = 0;
+            advancedTexture.addControl(line1);
+            line1.linkWithMesh(guaguauf); 
+            line1.connectedControl = endRound;  
+
+            //var line2 = new BABYLON.GUI.Line();
+            //line2.alpha = 0.5; //Transparencia de la Linea
+            //line2.lineWidth = 5; //Ancho de la Linea
+            //line2.color = "blue";
+            //advancedTexture.addControl(line2); 
+            //line2.linkWithMesh(guaguauf);
+            //rect1.linkWithMesh(sphere);   
+            //line2.linkOffsetX = -50;
+            //line2.linkOffsetY = -50;
+            //266,513 - 397,555 
+            //line2.connectedControl = endRound;
+
+            //var line3 = new BABYLON.GUI.Line();
+            //line3.linkWithMesh(guaguauf);
+            //line3.x1 = 266;
+            //line3.y1 = 513;
+            //line3.x2 = 397;
+            //line3.y2 = 555;
+            //line3.lineWidth = 2;
+            //line3.color = "white";
+            //advancedTexture.addControl(line3); 
+
+/////////LINEAS FIN
+            // Plano
+            var plane = BABYLON.Mesh.CreatePlane("plane", 20);
+            plane.parent = sphere4;
+            plane.position.y = -10;
+        
+            // GUI
+            var advancedTexture2 = BABYLON.GUI.AdvancedDynamicTexture.CreateForMesh(plane);
+        
+            var panel2 = new BABYLON.GUI.StackPanel();  
+            panel2.top = "100px";
+            panel2.color = "white";
+            advancedTexture2.addControl(panel2);    
+        
+            var textblock = new BABYLON.GUI.TextBlock();
+            textblock.height = "150px";
+            textblock.fontSize = 100;
+            textblock.text = "Caracteristicas:";
+            panel2.addControl(textblock);   
+        
+            var addRadio = function(text, parent) {
+        
+                var button = new BABYLON.GUI.RadioButton();
+                button.width = "40px";
+                button.height = "40px";
+                button.color = "white";
+                button.background = "green";     
+        
+                button.onIsCheckedChangedObservable.add(function(state) {
+                    if (state) {
+                        textblock.text = "Seleccionado: " + text;
+                    }
+                }); 
+        
+                var header = BABYLON.GUI.Control.AddHeader(button, text, "300px", { isHorizontal: true, controlFirst: true });
+                header.height = "90px";
+                header.children[1].fontSize = 50;
+                header.children[1].onPointerDownObservable.add(function() {
+                    button.isChecked = !button.isChecked;
+                });
+        
+                parent.addControl(header);    
+            }
+            addRadio("Axon", panel2);
+            addRadio("Soma", panel2);
+            addRadio("Dendrita", panel2);
+            addRadio("Nucleo", panel2);
+            addRadio("Mielina", panel2);
+            addRadio("Sinapsis", panel2);
+            addRadio("Teledendron", panel2);
+            scene.registerBeforeRender(function() {
+                panel.rotation += 0.01;
+            });
+        
+            // Color
+          var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+            advancedTexture.layer.layerMask = 2;
+        
+            var panel3 = new BABYLON.GUI.StackPanel();
+            panel3.width = "220px"; //Tamaño del modulo de color
+            panel3.fontSize = "14px";
+            panel3.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;//posicion de modulo de color
+            panel3.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+            advancedTexture.addControl(panel3);
+        
+            header = new BABYLON.GUI.TextBlock();
+            header.text = "Color de Nodo:";
+            header.height = "40px";
+            header.color = "white";
+            header.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            header.paddingTop = "5px";
+            panel3.addControl(header);      
+        
+            var picker = new BABYLON.GUI.ColorPicker();
+            picker.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            picker.value = sphereMaterial.diffuseColor;
+            picker.height = "150px";
+            picker.width = "150px";
+            picker.onValueChangedObservable.add(function(value) { // value is a color3
+                sphereMaterial.diffuseColor = value;
+            });    
+            panel3.addControl(picker);  
+            return scene;
+        };
+            
+        engine = createDefaultEngine();
+        if (!engine) throw 'engine should not be null.';
+        scene = createScene();
+
+        engine.runRenderLoop(function () {
+            if (scene) {
+                scene.render();
+            }
+        });
+
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });
+    </script>
+</body>
+</html>
